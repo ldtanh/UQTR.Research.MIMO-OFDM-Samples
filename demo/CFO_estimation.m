@@ -1,30 +1,31 @@
 % CFO_estimation.m
 % Time-domain CP based method and Frequency-domain (Moose/Classen) methods
-% Ê±Óò»ùÓÚCPµÄ·½·¨ºÍÆµÓòµÄMoose/Classen·½·¨
+% Ê±ï¿½ï¿½ï¿½ï¿½ï¿½CPï¿½Ä·ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½Moose/Classenï¿½ï¿½ï¿½ï¿½
 
-% MIMO-OFDM Wireless Communications with MATLAB¢ç   Yong Soo Cho, Jaekwon Kim, Won Young Yang and Chung G. Kang
+% MIMO-OFDM Wireless Communications with MATLABï¿½ï¿½   Yong Soo Cho, Jaekwon Kim, Won Young Yang and Chung G. Kang
 % 2010 John Wiley & Sons (Asia) Pte Ltd
 
 % http://www.wiley.com//legacy/wileychi/cho/
 
 clear, clf
 CFO = 0.15;
-Nfft=128; % FFT size|FFT´óÐ¡
+Nfft=128; % FFT size|FFTï¿½ï¿½Ð¡
 Nbps=2; M=2^Nbps; % Number of bits per (modulated) symbol
-Es=1; % ÐÅºÅÄÜÁ¿
-A=sqrt(3/2/(M-1)*Es); % Signal energy and QAM normalization factor|QAM¹éÒ»»¯Òò×Ó
+Es=1; % ï¿½Åºï¿½ï¿½ï¿½ï¿½ï¿½
+A=sqrt(3/2/(M-1)*Es); % Signal energy and QAM normalization factor|QAMï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 N=Nfft; Ng=Nfft/4; Nofdm=Nfft+Ng;  Nsym=3;
 h=complex(randn,randn)/sqrt(2);
 %h=[1 zeros(1,5)]; 
 % channel(h,0);
-%Transmit signal|·¢ÉäÐÅºÅ
+%Transmit signal|ï¿½ï¿½ï¿½ï¿½ï¿½Åºï¿½
 x=[];
 for m=1:Nsym
-   msgint=randint(1,N,M);
+   msgint=randi([0,M-1],1,N);
    if i<=2,
-       Xp = add_pilot(zeros(1,Nfft),Nfft,4); Xf=Xp; % add_pilot|¼Óµ¼Æµ
+       Xp = add_pilot(zeros(1,Nfft),Nfft,4); Xf=Xp; % add_pilot|ï¿½Óµï¿½Æµ
    else  %Xf= QAM(msgint((i-1)*N+1:i*N),Nbps);  % constellation mapping. average power=1
-       mod_object = modem.qammod('M',M, 'SymbolOrder','gray'); % M½×¸ñÀ×ÂëQAMµ÷ÖÆÆ÷
+       % mod_object = modem.qammod('M',M, 'SymbolOrder','gray'); % Mï¿½×¸ï¿½ï¿½ï¿½ï¿½ï¿½QAMï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+       modulated_object = qammod(msgint, M);
        Xf = A*modulate(mod_object,msgint);
    end
    xt = ifft(Xf,Nfft); % IFFT
@@ -33,24 +34,24 @@ for m=1:Nsym
 end
 %channel
 %y=channel(x_syms);
-y=x; % No channel effect|Ã»ÓÐÐÅµÀÓ°Ïì
+y=x; % No channel effect|Ã»ï¿½ï¿½ï¿½Åµï¿½Ó°ï¿½ï¿½
 %Signal power calculation
-sig_pow= y*y'/length(y); % Signal power calculation|¼ÆËãÐÅºÅ¹¦ÂÊ
+sig_pow= y*y'/length(y); % Signal power calculation|ï¿½ï¿½ï¿½ï¿½ï¿½ÅºÅ¹ï¿½ï¿½ï¿½
 SNRdBs= 0:3:30;  
 MaxIter = 100;  
 for i=1:length(SNRdBs)
    SNRdB = SNRdBs(i);
    MSE_CFO_CP = 0; MSE_CFO_Moose = 0; MSE_CFO_Classen = 0;
-   rand('seed',1); randn('seed',1);  % Initialize seed for random number generator|³õÊ¼»¯Éú³ÉËæ»úÊýµÄÖÖ×Ó
-   y_CFO= add_CFO(y,CFO,Nfft); % Add CFO|¼ÓCFO
+   rand('seed',1); randn('seed',1);  % Initialize seed for random number generator|ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+   y_CFO= add_CFO(y,CFO,Nfft); % Add CFO|ï¿½ï¿½CFO
    for iter=1:MaxIter
       %y_aw=add_AWGN(y_CFO,sig_pow,SNRdB,'SNR',Nbps);  % AWGN added, signal power=1
-      y_aw = awgn(y_CFO,SNRdB,'measured');  % AWGN added, signal power=1|¼ÓAWGN
-      Est_CFO_CP = CFO_CP(y_aw,Nfft,Ng); % CP-based |Ê±Óò»ùÓÚCPµÄCFO¹À¼Æ
+      y_aw = awgn(y_CFO,SNRdB,'measured');  % AWGN added, signal power=1|ï¿½ï¿½AWGN
+      Est_CFO_CP = CFO_CP(y_aw,Nfft,Ng); % CP-based |Ê±ï¿½ï¿½ï¿½ï¿½ï¿½CPï¿½ï¿½CFOï¿½ï¿½ï¿½ï¿½
        MSE_CFO_CP = MSE_CFO_CP + (Est_CFO_CP-CFO)^2;
-      Est_CFO_Moose = CFO_Moose(y_aw,Nfft); % Moose (based on two consecutive preambles)|»ùÓÚÁ½¸öÁ¬ÐøÇ°µ¼
+      Est_CFO_Moose = CFO_Moose(y_aw,Nfft); % Moose (based on two consecutive preambles)|ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½
        MSE_CFO_Moose = MSE_CFO_Moose + (Est_CFO_Moose-CFO)^2;
-      Est_CFO_Classen = CFO_Classen(y_aw,Nfft,Ng,Xp); % Classen (Pilot-based)|»ùÓÚµ¼Æµ
+      Est_CFO_Classen = CFO_Classen(y_aw,Nfft,Ng,Xp); % Classen (Pilot-based)|ï¿½ï¿½ï¿½Úµï¿½Æµ
        MSE_CFO_Classen = MSE_CFO_Classen + (Est_CFO_Classen-CFO)^2;
    end % the end of for (iter) loop
    MSE_CP(i)=MSE_CFO_CP/MaxIter; 

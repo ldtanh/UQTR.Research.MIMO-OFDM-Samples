@@ -6,22 +6,21 @@
 %      SNR dB
 %      MaxIter : No. of iteration
 
-% MIMO-OFDM Wireless Communications with MATLAB¢ç   Yong Soo Cho, Jaekwon Kim, Won Young Yang and Chung G. Kang
+% MIMO-OFDM Wireless Communications with MATLABï¿½ï¿½   Yong Soo Cho, Jaekwon Kim, Won Young Yang and Chung G. Kang
 % 2010 John Wiley & Sons (Asia) Pte Ltd
 
 % http://www.wiley.com//legacy/wileychi/cho/
 
 clear, figure(1), clf, figure(2), clf
-nSTOs = [-3 -3 2 2]; % ¶ÔÓ¦µÄSTO²ÉÑùÊý
+nSTOs = [-3 -3 2 2]; % ï¿½ï¿½Ó¦ï¿½ï¿½STOï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 CFOs = [0 0.5 0 0.5];
 %CFOs = [0 0 0 0];
-SNRdB=30; MaxIter=10; % µü´ú´ÎÊý
-Nfft=128; Ng=Nfft/4; % FFT size and GI (CP) length |FFT´óÐ¡£¬GI(CP)³¤¶È
-Nofdm=Nfft+Ng; % OFDM symbol length|OFDM·ûºÅ³¤¶È
+SNRdB=30; MaxIter=10; % ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+Nfft=128; Ng=Nfft/4; % FFT size and GI (CP) length |FFTï¿½ï¿½Ð¡ï¿½ï¿½GI(CP)ï¿½ï¿½ï¿½ï¿½
+Nofdm=Nfft+Ng; % OFDM symbol length|OFDMï¿½ï¿½ï¿½Å³ï¿½ï¿½ï¿½
 Nbps=2; M=2^Nbps; % Number of bits per (modulated) symbol
-mod_object = modem.qammod('M',M, 'SymbolOrder','gray');
-Es=1; A=sqrt(3/2/(M-1)*Es); % Signal energy and QAM normalization factor|ÐÅºÅÄÜÁ¿ºÍQAM¹éÒ»»¯Òò×Ó
-N=Nfft;  com_delay = Nofdm/2; % Common delay|¹«¹²Ê±ÑÓ
+Es=1; A=sqrt(3/2/(M-1)*Es); % Signal energy and QAM normalization factor|ï¿½Åºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½QAMï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+N=Nfft;  com_delay = Nofdm/2; % Common delay|ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
 Nsym=100;
 %%seed
 rand('seed',1); randn('seed',1);
@@ -32,12 +31,14 @@ for i=1:length(nSTOs)
    nSTO= nSTOs(i);  CFO= CFOs(i);
    %if i==3, rand('seed',8); randn('seed',8);  end
    %Transmit signal
-   x = []; % Initialize a block of OFDM signals|³õÊ¼»¯OFDMÐÅºÅ
-   for m=1:Nsym % random bits generates |·¢ËÍOFDM·ûºÅ
-      msgint=randint(1,N,M); %bits_generator(1,Nsym*N,Nbps)
+   x = []; % Initialize a block of OFDM signals|ï¿½ï¿½Ê¼ï¿½ï¿½OFDMï¿½Åºï¿½
+   for m=1:Nsym % random bits generates |ï¿½ï¿½ï¿½ï¿½OFDMï¿½ï¿½ï¿½ï¿½
+      msgint=randi([1,M-1],1,N); %bits_generator(1,Nsym*N,Nbps)
       %Xf1 = QAM(msgint,Nbps); % constellation mapping. average power=1 
       %Xf= A*qammod(msgint,M); % constellation mapping. average power=1  
-      Xf = A*modulate(mod_object,msgint);
+      % mod_object = qammod('M',M,'gray');
+      modulated_object = qammod(msgint, M);
+      Xf = A*modulated_object;
       %discrepancy=norm(Xf-Xf1)
       %Xf1= A*modulate(modem.qammod(M),msgint([(m-1)*N+1:m*N]));
       xt = ifft(Xf,Nfft);  
@@ -47,18 +48,18 @@ for i=1:length(nSTOs)
    %%channel
    %figure(3), subplot(221), plot(Xf,'.'), %subplot(222), plot(Xf1,'.')
    %channel_(h,0); y= channel_(x_syms);
-   y = x;  % No channel effect|Ã»ÓÐÐÅµÀÓ°Ïì
+   y = x;  % No channel effect|Ã»ï¿½ï¿½ï¿½Åµï¿½Ó°ï¿½ï¿½
    %%Signal power calculation
    sig_pow = y*y'/length(y); % sig_pow= mean(mean(y.*conj(y),2))
-   %%Frequency offset + Symbol Time Offset|¼ÓCFOºÍSTO
+   %%Frequency offset + Symbol Time Offset|ï¿½ï¿½CFOï¿½ï¿½STO
    y_CFO= add_CFO(y,CFO,Nfft); y_CFO_STO= add_STO(y_CFO,-nSTO);
    v_ML=zeros(1,Ng); v_Cl=zeros(1,Ng);
-   Mag_cor= 0; Mag_dif= 0; % Ïà¹Øº¯Êý£¨Ê½5.12£©»ò²îÖµº¯Êý£¨Ê½5.11£©µÄÊ±±ä¹ì¼£
+   Mag_cor= 0; Mag_dif= 0; % ï¿½ï¿½Øºï¿½ï¿½ï¿½ï¿½ï¿½Ê½5.12ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½5.11ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ì¼£
    %%Add additive white gaussian noise
    for iter=1:MaxIter
       %y_aw= add_AWGN(y_CFO_STO,sig_pow,SNRdB,'SNR',Nbps);  % AWGN added|
       y_aw = awgn(y_CFO_STO,SNRdB,'measured');
-      %%%%%%%Symbol Timing Acqusition|»ñÈ¡·ûºÅ¶¨Ê±
+      %%%%%%%Symbol Timing Acqusition|ï¿½ï¿½È¡ï¿½ï¿½ï¿½Å¶ï¿½Ê±
       [STO_cor,mag_cor]= STO_by_correlation(y_aw,Nfft,Ng,com_delay);
       [STO_dif,mag_dif]= STO_by_difference(y_aw,Nfft,Ng,com_delay);
       v_ML(-STO_cor+Ng/2)= v_ML(-STO_cor+Ng/2)+1;
