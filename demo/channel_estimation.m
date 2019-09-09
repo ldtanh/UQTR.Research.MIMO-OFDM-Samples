@@ -1,43 +1,44 @@
 %channel_estimation.m
-% for LS/DFT Channel Estimation with linear/spline interpolation|²ÉÓÃÏßÐÔ/ÑùÌõ²åÖµµÄLS/DFTÐÅµÀ¹À¼Æ
+% for LS/DFT Channel Estimation with linear/spline interpolation|ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½LS/DFTï¿½Åµï¿½ï¿½ï¿½ï¿½ï¿½
 
-% MIMO-OFDM Wireless Communications with MATLAB¢ç   Yong Soo Cho, Jaekwon Kim, Won Young Yang and Chung G. Kang
+% MIMO-OFDM Wireless Communications with MATLABï¿½ï¿½   Yong Soo Cho, Jaekwon Kim, Won Young Yang and Chung G. Kang
 % 2010 John Wiley & Sons (Asia) Pte Ltd
 
 % http://www.wiley.com//legacy/wileychi/cho/
 
 clear all; close all; figure(1), clf, figure(2), clf
 Nfft=32;  Ng=Nfft/8;  Nofdm=Nfft+Ng;  Nsym=100;
-Nps=4; Np=Nfft/Nps; Nd=Nfft-Np; % Pilot spacing, Numbers of pilots and data per OFDM symbol|µ¼Æµ¼ä¸ô¡¢Ã¿¸öOFDM·ûºÅµÄµ¼ÆµÊý¡¢Ã¿¸öOFDM·ûºÅµÄÊý¾ÝÊýÁ¿
-Nbps=4; M=2^Nbps; % Number of bits per (modulated) symbol|Ã¿¸öµ÷ÖÆ·ûºÅµÄ±ÈÌØÊý
-mod_object = modem.qammod('M',M, 'SymbolOrder','gray');
-demod_object = modem.qamdemod('M',M, 'SymbolOrder','gray');
-Es=1; A=sqrt(3/2/(M-1)*Es); % Signal energy and QAM normalization factor|ÐÅºÅÄÜÁ¿¡¢QAM¹éÒ»»¯Òò×Ó
+Nps=4; Np=Nfft/Nps; Nd=Nfft-Np; % Pilot spacing, Numbers of pilots and data per OFDM symbol|ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½OFDMï¿½ï¿½ï¿½ÅµÄµï¿½Æµï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½OFDMï¿½ï¿½ï¿½Åµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+Nbps=4; M=2^Nbps; % Number of bits per (modulated) symbol|Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ÅµÄ±ï¿½ï¿½ï¿½ï¿½ï¿½
+% mod_object = modem.qammod('M',M, 'SymbolOrder','gray');
+% demod_object = modem.qamdemod('M',M, 'SymbolOrder','gray');
+Es=1; A=sqrt(3/2/(M-1)*Es); % Signal energy and QAM normalization factor|ï¿½Åºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½QAMï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 %fs = 10e6;  ts = 1/fs;  % Sampling frequency and Sampling period
 SNRs = [30];  sq2=sqrt(2);
 for i=1:length(SNRs)
    SNR = SNRs(i); 
    rand('seed',1); randn('seed',1);
-   MSE = zeros(1,6); nose = 0; % ±äÁ¿noseÓÃÓÚÍ³¼Æ´íÎó·ûºÅÊý£¬Number_of_symbol_errors
+   MSE = zeros(1,6); nose = 0; % ï¿½ï¿½ï¿½ï¿½noseï¿½ï¿½ï¿½ï¿½Í³ï¿½Æ´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Number_of_symbol_errors
    for nsym=1:Nsym
-      Xp = 2*(randn(1,Np)>0)-1;    % Pilot sequence generation|Éú³Éµ¼ÆµÐòÁÐ£¬-1ºÍ+1µÄËæ»úÐòÁÐ
+      Xp = 2*(randn(1,Np)>0)-1;    % Pilot sequence generation|ï¿½ï¿½ï¿½Éµï¿½Æµï¿½ï¿½ï¿½Ð£ï¿½-1ï¿½ï¿½+1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
       %Data = ((2*(randn(1,Nd)>0)-1) + j*(2*(randn(1,Nd)>0)-1))/sq2; % QPSK modulation
-      msgint=randint(1,Nfft-Np,M);    % bit generation|Éú³É±ÈÌØ
-      Data = modulate(mod_object,msgint)*A;
+      msgint=randi([0,M-1],1,Nfft-Np);    % bit generation|ï¿½ï¿½ï¿½É±ï¿½ï¿½ï¿½
+      % Data = modulate(mod_object,msgint)*A;
+      Data = qammod(msgint, M)*A;
       %Data = modulate(mod_object, msgint); Data = modnorm(Data,'avpow',1)*Data;   % normalization
       ip = 0;    pilot_loc = [];
-      for k=1:Nfft % ÔÚÆµÓòµÄÌØ¶¨Î»ÖÃ¼ÓÈëµ¼ÆµºÍÊý¾Ý
+      for k=1:Nfft % ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½Ø¶ï¿½Î»ï¿½Ã¼ï¿½ï¿½ëµ¼Æµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
          if mod(k,Nps)==1
            X(k) = Xp(floor(k/Nps)+1); pilot_loc = [pilot_loc k]; ip = ip+1;
-          else        X(k) = Data(k-ip); % ipÖ¸Ê¾ÁËµ±Ç°OFDM·ûºÅÖÐÒÑ¾­¼ÓÈëµÄµ¼ÆµµÄÊýÁ¿
+          else        X(k) = Data(k-ip); % ipÖ¸Ê¾ï¿½Ëµï¿½Ç°OFDMï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
          end
       end
       x = ifft(X,Nfft);                            % IFFT
-      xt = [x(Nfft-Ng+1:Nfft) x];                  % Add CP|¼ÓÑ­»·Ç°×º
-      h = [(randn+j*randn) (randn+j*randn)/2];     % generates a (2-tap) channel|²úÉúÒ»¸ö2³éÍ·ÐÅµÀ
-      H = fft(h,Nfft); channel_length = length(h); % True channel and its time-domain length|Êµ¼ÊÐÅµÀºÍËüµÄ³¤¶È
-      H_power_dB = 10*log10(abs(H.*conj(H)));      % True channel power in dB|Êµ¼ÊÐÅµÀµÄ¹¦ÂÊ[dB]
-      y_channel = conv(xt, h);                     % Channel path (convolution)|ÐÅµÀÂ·¾¶£¨¾í»ý£©
+      xt = [x(Nfft-Ng+1:Nfft) x];                  % Add CP|ï¿½ï¿½Ñ­ï¿½ï¿½Ç°×º
+      h = [(randn+j*randn) (randn+j*randn)/2];     % generates a (2-tap) channel|ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½2ï¿½ï¿½Í·ï¿½Åµï¿½
+      H = fft(h,Nfft); channel_length = length(h); % True channel and its time-domain length|Êµï¿½ï¿½ï¿½Åµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä³ï¿½ï¿½ï¿½
+      H_power_dB = 10*log10(abs(H.*conj(H)));      % True channel power in dB|Êµï¿½ï¿½ï¿½Åµï¿½ï¿½Ä¹ï¿½ï¿½ï¿½[dB]
+      y_channel = conv(xt, h);                     % Channel path (convolution)|ï¿½Åµï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
       sig_pow = mean(y_channel.*conj(y_channel));
       %y_aw(1,1:Nofdm) = y(1,1:Nofdm) + ...
       %   sqrt((10.^(-SNR/10))*sig_pow/2)*(randn(1,Nofdm)+j*randn(1,Nofdm)); % Add noise(AWGN)
@@ -57,11 +58,11 @@ for i=1:length(SNRs)
            figure(1), subplot(319+2*m), plot(H_power_dB,'b','linewidth',1); grid on; hold on;
            plot(H_est_power_dB,'r:+','Markersize',4,'linewidth',1); axis([0 32 -6 10])
            title(method); xlabel('Subcarrier Index'); ylabel('Power[dB]');
-           legend('True Channel',method,4);  set(gca,'fontsize',9)
+           legend('True Channel',method,'SouthEast');  set(gca,'fontsize',9)
            subplot(320+2*m), plot(H_power_dB,'b','linewidth',1); grid on; hold on;
            plot(H_DFT_power_dB,'r:+','Markersize',4,'linewidth',1); axis([0 32 -6 10])
            title([method ' with DFT']); xlabel('Subcarrier Index'); ylabel('Power[dB]');
-           legend('True Channel',[method ' with DFT'],4);  set(gca,'fontsize',9)
+           legend('True Channel',[method ' with DFT'],'SouthEast');  set(gca,'fontsize',9)
          end
          MSE(m) = MSE(m) + (H-H_est)*(H-H_est)';
          MSE(m+3) = MSE(m+3) + (H-H_DFT)*(H-H_DFT)';
@@ -77,7 +78,8 @@ for i=1:length(SNRs)
       for k=1:Nfft
          if mod(k,Nps)==1, ip=ip+1;  else  Data_extracted(k-ip)=Y_eq(k);  end
       end
-      msg_detected = demodulate(demod_object,Data_extracted/A);
+      % msg_detected = demodulate(demod_object,Data_extracted/A);
+      msg_detected = qamdemod(Data_extracted/A, M);
       nose = nose + sum(msg_detected~=msgint);
    end   
    MSEs(i,:) = MSE/(Nfft*Nsym);
