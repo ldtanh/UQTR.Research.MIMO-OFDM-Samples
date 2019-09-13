@@ -5,9 +5,9 @@
 % 2010 John Wiley & Sons (Asia) Pte Ltd
 
 % http://www.wiley.com//legacy/wileychi/cho/
-
+rng('shuffle');
 clear all; close all; figure(1), clf, figure(2), clf
-Nfft=32;  Ng=Nfft/8;  Nofdm=Nfft+Ng;  Nsym=100;
+Nfft=128;  Ng=Nfft/8;  Nofdm=Nfft+Ng;  Nsym=1;
 Nps=4; Np=Nfft/Nps; Nd=Nfft-Np; % Pilot spacing, Numbers of pilots and data per OFDM symbol|��Ƶ�����ÿ��OFDM���ŵĵ�Ƶ����ÿ��OFDM���ŵ���������
 Nbps=4; M=2^Nbps; % Number of bits per (modulated) symbol|ÿ�����Ʒ��ŵı�����
 % mod_object = modem.qammod('M',M, 'SymbolOrder','gray');
@@ -17,7 +17,6 @@ Es=1; A=sqrt(3/2/(M-1)*Es); % Signal energy and QAM normalization factor|�ź�
 SNRs = [30];  sq2=sqrt(2);
 for i=1:length(SNRs)
    SNR = SNRs(i); 
-   rand('seed',1); randn('seed',1);
    MSE = zeros(1,6); nose = 0; % ����nose����ͳ�ƴ����������Number_of_symbol_errors
    for nsym=1:Nsym
       Xp = 2*(randn(1,Np)>0)-1;    % Pilot sequence generation|���ɵ�Ƶ���У�-1��+1���������

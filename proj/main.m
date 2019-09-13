@@ -8,13 +8,13 @@ clf('reset');
 %% Implementations
 
 % FFT length ~ Number of Subcarriers
-n_subcarriers = 64; 
+n_subcarriers = 128; 
 
 % Number of OFDM Symbols will be transferred
 n_symbols = 1;
 
 % CP
-n_cps = 8;
+n_cps = 4;
 cp = n_subcarriers / n_cps;
 
 % Number of pilot carriers
@@ -63,7 +63,8 @@ time_domain_data_with_cp = add_cp(time_domain_data, cp);
 %% Channel Environment
 
 % Generate 2-tap channel
-h = [(rand + 1i * rand) (rand + 1i * rand)/2];
+% h = [(rand + 1i * rand) (rand + 1i * rand)/2];
+h = [1+0j 0+0j 0.3+0.3j];
 
 % True channel and its time-domain length
 H = fft(h, n_subcarriers);
@@ -84,7 +85,7 @@ y = yt(cp + 1 : n_ofdm_symbols);
 Y = time_to_frq_converter(y);
 
 % Channel Estimation by MMSE
-H_est = MMSE_CE(Y, msg_pilot, pilot_carriers, n_subcarriers, n_pilots, h, SNR);
+H_est = MMSE_CE(Y, msg_pilot, pilot_carriers, n_subcarriers, pilot_distance, h, SNR);
 
 % Calculate Channel Estimation Power
 H_est_power_dB = 10 * log10(abs(H_est.*conj(H_est)));
@@ -110,7 +111,8 @@ noise = 0 + sum(extracted_msg~=msg_input, 'all');
 
 %% Result
 
-fprintf('Number of Error Symbol: %d\n', noise);
+fprintf('Number of Error Symbol: %f\n', noise);
+fprintf('BER: %f\n', noise / length(msg_input)); 
 fprintf('MMSE : %6.4e\n', (H-H_est)*(H-H_est)');
 fprintf('MMSE with DFT: %6.4e\n', (H-H_DFT)*(H-H_DFT)');
 
