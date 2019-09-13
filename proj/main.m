@@ -29,11 +29,11 @@ n_ofdm_symbols = n_subcarriers + cp;
 
 % Number of bits / OFDM Symbols
 n_bit_per_symbol = 4;
-QAM_Modulator = 2^4;
+QAM_Modulator = 2^n_bit_per_symbol;
 
 % Carriers 
 all_carriers = 1:1:n_subcarriers;
-pilot_carriers = 1:n_pilots:n_subcarriers;
+pilot_carriers = 1:pilot_distance:n_subcarriers;
 
 % Signal-to-Noise Ratio
 SNR = 25;
@@ -76,18 +76,6 @@ y_channel = conv(time_domain_data_with_cp, h);
 % Add White Gaussian Noise
 yt = awgn(y_channel, SNR, 'measured');
 
-%% Plot Before & After Channel
-figure(1);
-time = 1:1:length(time_domain_data_with_cp);
-plot(time, abs(time_domain_data_with_cp), 'r-o','Markersize',4,'linewidth',1); hold on; grid on;
-plot(time, yt(1:length(time_domain_data_with_cp)), 'g-o','Markersize',4,'linewidth',1);
-xlabel('Time');
-ylabel('x|t|');
-legend('True Channel','After Channel Env.','SouthEast');  set(gca,'fontsize',9)
-signal_power = mean(abs(y_channel.^2));
-sigma2 = signal_power * 10^(-SNR/10);
-title(['Before & After Propagation over Chanel. RX Signal Power: ' num2str(signal_power) '. Noise Power: ' num2str(sigma2)]);
-
 %% RX-Side
 % Remove CP
 y = yt(cp + 1 : n_ofdm_symbols);
@@ -107,16 +95,6 @@ h_DFT = h_est(1:channel_length);
 H_DFT = fft(h_DFT, n_subcarriers);
 H_DFT_power_dB = 10 * log10(abs(H_DFT.*conj(H_DFT)));
 
-% Plot Channel Estimation Power
-method = 'MMSE';
-figure(2), subplot(211), plot(H_power_dB,'b','linewidth',1); grid on; hold on;
-plot(H_est_power_dB,'r:+','Markersize',4,'linewidth',1); axis([0 n_subcarriers -10 10])
-title(method); xlabel('Subcarrier Index'); ylabel('Power[dB]');
-legend('True Channel',method,'SouthEast');  set(gca,'fontsize',9)
-subplot(212), plot(H_power_dB,'b','linewidth',1); grid on; hold on;
-plot(H_DFT_power_dB,'r:+','Markersize',4,'linewidth',1); axis([0 n_subcarriers -10 10])
-title([method ' with DFT']); xlabel('Subcarrier Index'); ylabel('Power[dB]');
-legend('True Channel',[method ' with DFT'],'SouthEast');  set(gca,'fontsize',9)
 
 % Equalization
 Y_eq = channel_equalizer(Y, H_est);
@@ -135,6 +113,28 @@ noise = 0 + sum(extracted_msg~=msg_input, 'all');
 fprintf('Number of Error Symbol: %d\n', noise);
 fprintf('MMSE : %6.4e\n', (H-H_est)*(H-H_est)');
 fprintf('MMSE with DFT: %6.4e\n', (H-H_DFT)*(H-H_DFT)');
+
+%% Plot Before & After Channel
+figure(1);
+plot(abs(time_domain_data), 'r-o','Markersize',4,'linewidth',1); hold on; grid on;
+plot(abs(y), 'g-o','Markersize',4,'linewidth',1);
+xlabel('Time');
+ylabel('$x|t|$');
+legend('True Channel','After Channel Env.','SouthEast');  set(gca,'fontsize',9)
+signal_power = mean(abs(y_channel.^2));
+sigma2 = signal_power * 10^(-SNR/10);
+title(['Before & After Propagation over Chanel. RX Signal Power: ' num2str(signal_power) '. Noise Power: ' num2str(sigma2)]);
+
+%% Plot Channel Estimation Power
+method = 'MMSE';
+figure(2), subplot(211), plot(H_power_dB,'b','linewidth',1); grid on; hold on;
+plot(H_est_power_dB,'r:+','Markersize',4,'linewidth',1); axis([0 n_subcarriers -10 10])
+title(method); xlabel('Subcarrier Index'); ylabel('Power[dB]');
+legend('True Channel',method,'SouthEast');  set(gca,'fontsize',9)
+subplot(212), plot(H_power_dB,'b','linewidth',1); grid on; hold on;
+plot(H_DFT_power_dB,'r:+','Markersize',4,'linewidth',1); axis([0 n_subcarriers -10 10])
+title([method ' with DFT']); xlabel('Subcarrier Index'); ylabel('Power[dB]');
+legend('True Channel',[method ' with DFT'],'SouthEast');  set(gca,'fontsize',9)
 
 %% Plot recevied value on Interpolation
 figure(3), subplot(221), plot(Y,'.','Markersize',5), axis([-1.5 1.5 -1.5 1.5])
