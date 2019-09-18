@@ -120,8 +120,7 @@ extracted_msg_total = [];
 y_without_cp = [];
 start = 1;
 
-% CFO compensation in Time-Domain
-y_rx = add_CFO(y_rx,-Est_CFO_CP,n_subcarriers);
+% R
 
 for m=1:n_symbols
 	% Remove CP

@@ -10,20 +10,20 @@
 % 2010 John Wiley & Sons (Asia) Pte Ltd
 
 % http://www.wiley.com//legacy/wileychi/cho/
+rng('shuffle');
 
 clear, figure(1), clf, figure(2), clf
 nSTOs = [-3 -3 2 2]; % ��Ӧ��STO������
 CFOs = [0 0.5 0 0.5];
 %CFOs = [0 0 0 0];
-SNRdB=30; MaxIter=10; % ��������
+SNRdB=30; MaxIter=1; % ��������
 Nfft=128; Ng=Nfft/4; % FFT size and GI (CP) length |FFT��С��GI(CP)����
 Nofdm=Nfft+Ng; % OFDM symbol length|OFDM���ų���
 Nbps=2; M=2^Nbps; % Number of bits per (modulated) symbol
 Es=1; A=sqrt(3/2/(M-1)*Es); % Signal energy and QAM normalization factor|�ź�������QAM��һ������
 N=Nfft;  com_delay = Nofdm/2; % Common delay|����ʱ��
-Nsym=100;
+Nsym=1;
 %%seed
-rand('seed',1); randn('seed',1);
 h=[complex(randn,randn),0,0,0,complex(randn,randn)/sqrt(16),complex(randn,randn)/sqrt(18)]/sqrt(2);
 h=0.5.^[0:5]; 
 h=[complex(randn,randn) 0.5*complex(randn,randn) 0.25*complex(randn,randn) 0.125*complex(randn,randn) 0.0625*complex(randn,randn) 0.03125*complex(randn,randn)];
@@ -68,22 +68,22 @@ for i=1:length(nSTOs)
       Mag_dif= Mag_dif+mag_dif;
    end % End of for loop of iter
    %%%%%%% Probability
-   v_ML_v_Cl= [v_ML; v_Cl]*(100/MaxIter);
-   figure(1), set(gca,'fontsize',9), subplot(220+i)
-   bar(-Ng/2+1:Ng/2,v_ML_v_Cl'), hold on, grid on
-   str=sprintf('nSTO Estimation: nSTO=%d, CFO=%1.2f, SNR=%3d[dB]',nSTO,CFO,SNRdB);
-   title(str); xlabel('Sample'), ylabel('Probability');
-   legend('ML','Classen'); axis([-Ng/2-1 Ng/2+1 0 100])
-   %%%%%%% Time metric
-   Mag_cor = Mag_cor/MaxIter; [Mag_cor_max,ind_max] = max(Mag_cor); nc= ind_max-1-com_delay; 
-   Mag_dif = Mag_dif/MaxIter; [Mag_dif_min,ind_min] = min(Mag_dif); nd= ind_min-1-com_delay;
-   nn=-Nofdm/2+[0:length(Mag_cor)-1]; nt= nSTO;
-   figure(2), subplot(220+i), plot(nn,Mag_cor,nn,1.5*Mag_dif,'r:','markersize',1), hold on
-   stem(nc,Mag_cor_max,'b','markersize',5), stem(nSTO,Mag_cor(nSTO+com_delay+1),'k.','markersize',5) % Estimated/True Maximum value
-   str1=sprintf('STO Estimation - ML(b-)/Classen(r:) for nSTO=%d, CFO=%1.2f',nSTO,CFO); %,SNRdB);
-   title(str1); xlabel('Sample'), ylabel('Magnitude'); 
-   %stem(n1,Mag_dif_min,'r','markersize',5)
-   stem(nd,Mag_dif(nd+com_delay+1),'r','markersize',5)
-   stem(nSTO,Mag_dif(nSTO+com_delay+1),'k.','markersize',5) % Estimated/True Minimum value
-   set(gca,'fontsize',9, 'XLim',[-32 32], 'XTick',[-10 -3 0 2 10]) %, xlim([-50 50]),
+%    v_ML_v_Cl= [v_ML; v_Cl]*(100/MaxIter);
+%    figure(1), set(gca,'fontsize',9), subplot(220+i)
+%    bar(-Ng/2+1:Ng/2,v_ML_v_Cl'), hold on, grid on
+%    str=sprintf('nSTO Estimation: nSTO=%d, CFO=%1.2f, SNR=%3d[dB]',nSTO,CFO,SNRdB);
+%    title(str); xlabel('Sample'), ylabel('Probability');
+%    legend('ML','Classen'); axis([-Ng/2-1 Ng/2+1 0 100])
+%    %%%%%%% Time metric
+%    Mag_cor = Mag_cor/MaxIter; [Mag_cor_max,ind_max] = max(Mag_cor); nc= ind_max-1-com_delay; 
+%    Mag_dif = Mag_dif/MaxIter; [Mag_dif_min,ind_min] = min(Mag_dif); nd= ind_min-1-com_delay;
+%    nn=-Nofdm/2+[0:length(Mag_cor)-1]; nt= nSTO;
+%    figure(2), subplot(220+i), plot(nn,Mag_cor,nn,1.5*Mag_dif,'r:','markersize',1), hold on
+%    stem(nc,Mag_cor_max,'b','markersize',5), stem(nSTO,Mag_cor(nSTO+com_delay+1),'k.','markersize',5) % Estimated/True Maximum value
+%    str1=sprintf('STO Estimation - ML(b-)/Classen(r:) for nSTO=%d, CFO=%1.2f',nSTO,CFO); %,SNRdB);
+%    title(str1); xlabel('Sample'), ylabel('Magnitude'); 
+%    %stem(n1,Mag_dif_min,'r','markersize',5)
+%    stem(nd,Mag_dif(nd+com_delay+1),'r','markersize',5)
+%    stem(nSTO,Mag_dif(nSTO+com_delay+1),'k.','markersize',5) % Estimated/True Minimum value
+%    set(gca,'fontsize',9, 'XLim',[-32 32], 'XTick',[-10 -3 0 2 10]) %, xlim([-50 50]),
 end % End of for loop of i
