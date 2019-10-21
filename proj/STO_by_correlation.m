@@ -23,6 +23,7 @@ end
 nn=0:Ng-1;
 yy = y(nn+com_delay)*y(nn+com_delay+Nfft)';	% ��غ���
 maximum=abs(yy);
+STO_est=0;
 for n=1:N_ofdm
    n1 = n-1;
    yy1 = y(n1+com_delay)*y(n1+com_delay+Nfft)';

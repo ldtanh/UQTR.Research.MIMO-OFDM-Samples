@@ -1,16 +1,16 @@
 function [STO_est,Mag]=STO_by_difference(y,Nfft,Ng,com_delay)
 % STO estimation by minimizing the difference between CP and rear part of OFDM symbol
-% Í¨¹ý×îÐ¡»¯CPºÍOFDM·ûºÅºó²¿µÄ²îÖµ£¬ÊµÏÖSTOµÄ¹À¼Æ
+% Í¨ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½CPï¿½ï¿½OFDMï¿½ï¿½ï¿½Åºó²¿µÄ²ï¿½Öµï¿½ï¿½Êµï¿½ï¿½STOï¿½Ä¹ï¿½ï¿½ï¿½
 % estimates STO by minimizing the difference between CP (cyclic prefix) 
 %     and rear part of OFDM symbol
-% Input:  y          = Received OFDM signal including CP|°üÀ¨CPµÄOFDM½ÓÊÕÐÅºÅ
-%          Ng         = Number of samples in CP (Guard Interval)|CP/GIÄÚµÄ²ÉÑùÊý
-%          com_delay = Common delay|¹«¹²Ê±ÑÓ
-% Output: STO_est   = STO estimate|STO¹À¼Æ
+% Input:  y          = Received OFDM signal including CP|ï¿½ï¿½ï¿½ï¿½CPï¿½ï¿½OFDMï¿½ï¿½ï¿½ï¿½ï¿½Åºï¿½
+%          Ng         = Number of samples in CP (Guard Interval)|CP/GIï¿½ÚµÄ²ï¿½ï¿½ï¿½ï¿½ï¿½
+%          com_delay = Common delay|ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+% Output: STO_est   = STO estimate|STOï¿½ï¿½ï¿½ï¿½
 %           Mag        = Correlation function trajectory varying with time
-%                   Ïà¹Øº¯ÊýµÄÊ±±ä¹ì¼£
+%                   ï¿½ï¿½Øºï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ì¼£
 
-% MIMO-OFDM Wireless Communications with MATLAB¢ç   Yong Soo Cho, Jaekwon Kim, Won Young Yang and Chung G. Kang
+% MIMO-OFDM Wireless Communications with MATLABï¿½ï¿½   Yong Soo Cho, Jaekwon Kim, Won Young Yang and Chung G. Kang
 % 2010 John Wiley & Sons (Asia) Pte Ltd
 
 % http://www.wiley.com//legacy/wileychi/cho/
@@ -23,7 +23,7 @@ for n=1:N_ofdm
    %tmp1 = y(nn)-y(nn+Nfft); tmp = tmp1*tmp1'; % works for CFO=0
    %tmp = y(nn)*y(nn)'+y(nn+Nfft)*y(nn+Nfft)'-2*abs(y(nn))*abs(y(nn+Nfft))';
    tmp0 = abs(y(nn))-abs(y(nn+Nfft));
-   Mag(n) = tmp0*tmp0'; % Eq.(5.11) is strong against CFO{Ô­Ê¼×¢ÊÍÎª5.12£¬ÓëÊéÉÏ²»·û}|Ê½5.11£¨±È5.10¸ü¿¹CFO£©
+   Mag(n) = tmp0*tmp0'; % Eq.(5.11) is strong against CFO{Ô­Ê¼×¢ï¿½ï¿½Îª5.12ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï²ï¿½ï¿½ï¿½}|Ê½5.11ï¿½ï¿½ï¿½ï¿½5.10ï¿½ï¿½ï¿½ï¿½CFOï¿½ï¿½
    %tmp0= abs(y(nn)-conj(y(nn+Nfft))); tmp= tmp0*tmp0.';
    %discrepancy = tmp - tmp2
    %Mag(n) = Mag(n) + tmp;
