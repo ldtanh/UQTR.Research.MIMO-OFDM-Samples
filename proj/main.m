@@ -50,18 +50,33 @@ n_times = 100;
 % Generate Pilot value
 Tx_pilot = 2*(randn(1,n_pilots) > 0) - 1;
 
+
+% Calculate Power Delay Profile
+
 % 802.11 Channel Configuration
 scale=1e-6;          % nano
 Ts=50*scale;         % Sampling time
 t_rms=25*scale;     % RMS delay spread
 num_ch=1;       % Number of channels
+PDP=IEEE802_11_model(t_rms,Ts);
 
-for SNR=0:5:40
+SNRs = [0:5:40];
+n_snr = length(SNRs);
+all_h = [];
+
+for i=1:(n_snr*length(STOs)*length(CFOs)*n_times)
+    for k=1:length(PDP)
+        h(:,k) = Ray_model(num_ch).'*sqrt(PDP(k));
+    end
+    all_h = [all_h ; h];
+end
+
+for iSNR=1:length(SNRs)
+    SNR = SNRs(iSNR);
     for iSTO=1:length(STOs)
         for iCFO=1:length(CFOs)
-            
-            BERs = [];
-            for time=1:n_times
+            %             BERs = [];
+            parfor time=1:n_times
                 %% Initialization
                 % Get STO & CFO information
                 nSTO = STOs(iSTO);
@@ -103,12 +118,7 @@ for SNR=0:5:40
                 end
                 
                 %% Generate Channel
-                % Calculate Power Delay Profile
-                PDP=IEEE802_11_model(t_rms,Ts);
-                for k=1:length(PDP)
-                    h(:,k) = Ray_model(num_ch).'*sqrt(PDP(k));
-                end
-                
+                h = all_h((iSNR-1)*n_snr+time,:);
                 H = fft(h(1,:),n_subcarriers);
                 
                 % True channel and its time-domain length
@@ -283,9 +293,9 @@ for SNR=0:5:40
                     'Rx_without_CP',...
                     'Rx_modulated_data',...
                     'Rx_data');
-                BERs = [BERs ber];
+                %                 BERs = [BERs ber];
             end
-            fprintf('======> Mean of BERs: %f\n',mean(BERs));
+            %             fprintf('======> Mean of BERs: %f\n',mean(BERs));
         end
     end
 end
