@@ -9,7 +9,7 @@ clear,clc;
 n_subcarriers = 128;
 
 % Number of OFDM Symbols will be transferred
-n_symbols = 500;
+n_symbols = 20000;
 
 % CP
 n_cps = 16;
@@ -45,7 +45,7 @@ STOs = [0];
 CFOs = [0];
 
 %% Generate Dataset
-n_times = 3;
+n_times = 100;
 
 % Generate Pilot value
 Tx_pilot = 2*(randn(1,n_pilots) > 0) - 1;
@@ -81,8 +81,6 @@ for iSNR=1:length(SNRs)
                 % Get STO & CFO information
                 nSTO = STOs(iSTO);
                 CFO = CFOs(iCFO);
-                
-                fprintf('[%.0f/%.0f] SNR = %.0f - STO = %f - CFO = %f\n', time, n_times, SNR, nSTO, CFO);
                 
                 % temporary even if not having sto/cfo
                 sto_mag_dif = [];
@@ -214,7 +212,7 @@ for iSNR=1:length(SNRs)
                 ber = err / (length(Tx_data)*n_bit_per_symbol);
                 %% Result
                 
-                fprintf('BER: %f\n', ber);
+                fprintf('[%.0f/%.0f] SNR = %.0f - STO = %f - CFO = %f --> BER: %f\n', time, n_times, SNR, nSTO, CFO, ber);
                 % fprintf('MMSE : %6.4e\n', (H-H_est)*(H-H_est)');
                 % fprintf('MMSE with DFT: %6.4e\n', (H-H_DFT)*(H-H_DFT)');
                 
