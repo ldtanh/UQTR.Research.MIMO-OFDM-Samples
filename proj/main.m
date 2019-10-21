@@ -118,7 +118,7 @@ for iSNR=1:length(SNRs)
                 end
                 
                 %% Generate Channel
-                h = all_h((iSNR-1)*n_snr+time,:);
+                h = all_h((iSNR-1)*n_times+time,:);
                 H = fft(h(1,:),n_subcarriers);
                 
                 % True channel and its time-domain length
