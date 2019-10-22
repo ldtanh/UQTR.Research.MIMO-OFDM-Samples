@@ -1,7 +1,7 @@
 clear,clc;
 
 %% Configuration
-SNRs = [20];
+SNRs = [20:5:40];
 sto = 0;
 cfo = 0;
 
@@ -14,10 +14,10 @@ n_pilot = n_subcarriers / pilot_distance;
 inputSize = [1 n_subcarriers*2 1];
 outputSize = [1 n_subcarriers*2 1];
 
-data_dir = '/home/anhldt/mimo-ofdm/proj/data/';
+data_dir = '/home/anhldt/mimo-ofdm/proj/data_3/';
 
 %% Generate Data
-times = 10;
+times = 100;
 n_dataset = n_symbols * times * length(SNRs);
 
 X = zeros(1,n_pilot*2,1,n_dataset);
@@ -43,6 +43,7 @@ for i_snr=1:length(SNRs)
             
             X(1,1:n_subcarriers,1,idx) = h_ls_real(:);
             X(1,n_subcarriers+1:n_subcarriers*2,1,idx) = h_ls_imag(:);
+            
             Y(idx,1:n_subcarriers) = real(H(1,:));
             Y(idx,n_subcarriers+1:n_subcarriers*2) = imag(H(1,:));
         end
@@ -64,32 +65,32 @@ layers = [
     imageInputLayer(inputSize,'Normalization','none')
     
     fullyConnectedLayer(n_subcarriers*2)
+    fullyConnectedLayer(n_subcarriers*2)
         
     regressionLayer
     ];
 
-miniBatchSize = 128;
+miniBatchSize = 256;
 validationFrequency = 200;
 
 %     'ValidationFrequency',validationFrequency, ...
 %     'ValidationData', {X_test Y_test},...
 
 options = trainingOptions('adam', ...
-    'MaxEpochs',100,...
+    'MaxEpochs',500,...
     'InitialLearnRate',1e-3, ...
     'MiniBatchSize', miniBatchSize,...
     'Plots','training-progress',...
     'LearnRateSchedule','piecewise',...
     'LearnRateDropFactor',0.5,...
-    'LearnRateDropPeriod',50,...
+    'LearnRateDropPeriod',250,...
     'Shuffle', 'every-epoch');
 
 net = trainNetwork(X_train, Y_train, layers, options);
-
 
 %% Save Net
 if ~exist('net/', 'dir')
     mkdir('net')
 end
 
-save(['net/CE_model_5.mat'], 'layers', 'options', 'net');
+save(['net/CE_adv_model_8.mat'], 'layers', 'options', 'net');
