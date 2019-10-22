@@ -15,10 +15,10 @@ Mean_BL_MSEs = [];
 Mean_NN_MSEs = [];
 
 %% Load Neural Networks
-load('net/CE_model_5.mat');
+load('net/CE_adv_model_7.mat');
 
 %% Calculation
-for snr=-10:5:30
+for snr=0:5:30
     fprintf('------  SNR = %.0f  ----------\n',snr);    
     %% Generate Data   
     Baseline_MSEs = 0;
@@ -66,8 +66,8 @@ for snr=-10:5:30
     Mean_NN_MSEs = [Mean_NN_MSEs mse_NN];
 end
 
-figure(2);
-plot([-10:5:30], Mean_BL_MSEs, 'r','Markersize',4,'linewidth',1); hold on; grid on;
-plot([-10:5:30], Mean_NN_MSEs, 'b--o','Markersize',4,'linewidth',1);
-title('MSE per SNR'); xlabel('SNR'); ylabel('MSE');
-legend('Baseline','Deep Learning');  set(gca,'fontsize',9);
+figure(1);
+% plot([0:5:30], Mean_BL_MSEs, 'r','Markersize',4,'linewidth',1); hold on; grid on;
+plot([0:5:30], Mean_NN_MSEs, 'm--o','Markersize',4,'linewidth',1);
+% title('MSE per SNR'); xlabel('SNR'); ylabel('MSE');
+% legend('Baseline','Deep Learning');  set(gca,'fontsize',9);
